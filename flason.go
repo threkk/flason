@@ -2,6 +2,7 @@ package flason
 
 import (
 	"encoding/json"
+	"errors"
 	"strconv"
 	"strings"
 )
@@ -11,18 +12,25 @@ type JsonPair struct {
 	Value string
 }
 
-func FlattenJson(str string) ([]JsonPair, error) {
-	var pairs []JsonPair = make([]JsonPair, 0)
+func FlattenJson(str string) (pairs []JsonPair, err error) {
+	// We recover in case we panic during execution.
+	defer func() {
+		if r := recover(); r != nil {
+			err = errors.New("Unknown value type during recursion.")
+			pairs = nil
+		}
+	}()
 
 	var data map[string]interface{}
 	if err := json.Unmarshal([]byte(str), &data); err != nil {
 		return nil, err
 	}
 
-	// TODO: Change panic for error.
 	// TODO: Make it asynchronous using go routines.
 	var reduce func(prev string, curr map[string]interface{})
 	reduce = func(prev string, curr map[string]interface{}) {
+
+		// Recover from the panic and return nicely.
 		for k, v := range curr {
 			switch v.(type) {
 			case string:
@@ -48,13 +56,13 @@ func FlattenJson(str string) ([]JsonPair, error) {
 			case nil:
 				path := strings.Join([]string{prev, ".", k}, "")
 				pairs = append(pairs, JsonPair{
-					Path: path,
+					Path:  path,
 					Value: "null",
 				})
 			case []interface{}:
 				for index, w := range v.([]interface{}) {
-					path := strings.Join([]string{ prev, "[", strconv.Itoa(index), "]"}, "")
-					reduce(path , w.(map[string]interface{}))
+					path := strings.Join([]string{prev, "[", strconv.Itoa(index), "]"}, "")
+					reduce(path, w.(map[string]interface{}))
 				}
 			case map[string]interface{}:
 				for newKey, w := range v.(map[string]interface{}) {
@@ -67,7 +75,6 @@ func FlattenJson(str string) ([]JsonPair, error) {
 		}
 	}
 
-	reduce("$", data)
-
+	reduce("", data)
 	return pairs, nil
 }

@@ -16,19 +16,41 @@ func TestFlattenJson(t *testing.T) {
 		wantErr bool
 	}{
 		{
+			name: "Invalid JSON",
+			args: args{
+				str: "Not a JSON",
+			},
+			want:    nil,
+			wantErr: true,
+		},
+		{
 			name: "Basic string",
 			args: args{
-				str: `{ "a": "a" }`,
+				str: `{ "key": "value" }`,
 			},
 			want: []JsonPair{
 				JsonPair{
-					Path:  "$.a",
-					Value: "a",
+					Path:  ".key",
+					Value: "value",
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "Basic number",
+			args: args{
+				str: `{ "key": 1.5 }`,
+			},
+			want: []JsonPair{
+				JsonPair{
+					Path:  ".key",
+					Value: "1.5",
 				},
 			},
 			wantErr: false,
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := FlattenJson(tt.args.str)
