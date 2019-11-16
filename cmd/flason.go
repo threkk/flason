@@ -98,7 +98,7 @@ func main() {
 	case "csv":
 		err = pairs.PrintAsCsv(os.Stdout)
 	default:
-		err = fmt.Errorf("Unkown output provided: %s", output)
+		err = fmt.Errorf("Unknown output provided: %s", output)
 	}
 
 	if err != nil {
