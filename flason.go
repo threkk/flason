@@ -1,37 +1,92 @@
 package flason
 
 import (
+	"bufio"
+	"encoding/csv"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"os"
 	"sort"
 	"strconv"
 	"strings"
 )
 
 type JsonPair struct {
-	Path  string
-	Value string
+	Path  string `json:"path"`
+	Value string `json:"value"`
 }
 
-type byPath []JsonPair
+type FlatJson []JsonPair
 
-func (p byPath) Len() int {
+func (p FlatJson) Len() int {
 	return len(p)
 }
 
-func (p byPath) Swap(i, j int) {
+func (p FlatJson) Swap(i, j int) {
 	p[i], p[j] = p[j], p[i]
 }
 
-func (p byPath) Less(i, j int) bool {
+func (p FlatJson) Less(i, j int) bool {
 	return p[i].Path < p[j].Path
 }
 
-func FlattenJson(str, starter string) (pairs []JsonPair, err error) {
+func (p FlatJson) PrintAsJson(f *os.File) error {
+	content, err := json.Marshal(p)
+	if err != nil {
+		return err
+	}
+
+	w := bufio.NewWriter(f)
+	_, err = w.Write(content)
+	if err != nil {
+		return err
+	}
+
+	return w.Flush()
+}
+
+func (p FlatJson) PrintAsCsv(f *os.File) error {
+	elements := [][]string{
+		[]string{"path", "value"},
+	}
+
+	for _, pair := range p {
+		elements = append(elements, []string{
+			pair.Path,
+			pair.Value,
+		})
+	}
+
+	w := csv.NewWriter(f)
+	w.WriteAll(elements)
+
+	if err := w.Error(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (p FlatJson) PrintAsIni(f *os.File) error {
+	w := bufio.NewWriter(f)
+
+	var line string
+	for _, pair := range p {
+		line = fmt.Sprintf("%s = %s\n", pair.Path, pair.Value)
+		_, err := w.WriteString(line)
+		if err != nil {
+			return err
+		}
+	}
+
+	return w.Flush()
+}
+
+func FlattenJson(str, starter string) (pairs FlatJson, err error) {
 	// We recover in case we panic during execution.
 	defer func() {
 		if r := recover(); r != nil {
-			// TODO: Add debugging flag with the value.
 			err = errors.New("Unknown value type during recursion.")
 			pairs = nil
 		}
@@ -89,7 +144,7 @@ func FlattenJson(str, starter string) (pairs []JsonPair, err error) {
 	}
 
 	reduce(starter, data)
-	sort.Sort(byPath(pairs))
+	sort.Sort(FlatJson(pairs))
 
 	return pairs, nil
 }
