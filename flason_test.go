@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func eq(a, b []JsonPair) bool {
+func eq(a, b []JSONPair) bool {
 	if (a == nil) != (b == nil) {
 		return false
 	}
@@ -30,7 +30,7 @@ func TestBasicTypes(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    args
-		want    []JsonPair
+		want    []JSONPair
 		wantErr bool
 	}{
 		{
@@ -46,7 +46,7 @@ func TestBasicTypes(t *testing.T) {
 			args: args{
 				str: `"a"`,
 			},
-			want: []JsonPair{
+			want: []JSONPair{
 				{
 					Path:  "",
 					Value: "a",
@@ -59,7 +59,7 @@ func TestBasicTypes(t *testing.T) {
 			args: args{
 				str: `{ "key": "value" }`,
 			},
-			want: []JsonPair{
+			want: []JSONPair{
 				{
 					Path:  ".key",
 					Value: "value",
@@ -72,7 +72,7 @@ func TestBasicTypes(t *testing.T) {
 			args: args{
 				str: `{ "key": 1.5 }`,
 			},
-			want: []JsonPair{
+			want: []JSONPair{
 				{
 					Path:  ".key",
 					Value: "1.5",
@@ -85,7 +85,7 @@ func TestBasicTypes(t *testing.T) {
 			args: args{
 				str: `{ "key": null }`,
 			},
-			want: []JsonPair{
+			want: []JSONPair{
 				{
 					Path:  ".key",
 					Value: "null",
@@ -98,7 +98,7 @@ func TestBasicTypes(t *testing.T) {
 			args: args{
 				str: `{ "key": true, "otherKey": false }`,
 			},
-			want: []JsonPair{
+			want: []JSONPair{
 				{
 					Path:  ".key",
 					Value: "true",
@@ -115,7 +115,7 @@ func TestBasicTypes(t *testing.T) {
 			args: args{
 				str: `[ "a", 1, true ]`,
 			},
-			want: []JsonPair{
+			want: []JSONPair{
 				{
 					Path:  "[0]",
 					Value: "a",
@@ -136,7 +136,7 @@ func TestBasicTypes(t *testing.T) {
 			args: args{
 				str: `{ "inv": { "true": true, "false": false } }`,
 			},
-			want: []JsonPair{
+			want: []JSONPair{
 				{
 					Path:  ".inv.false",
 					Value: "false",
@@ -152,7 +152,7 @@ func TestBasicTypes(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := FlattenJson(tt.args.str, "")
+			got, err := FlattenJSON(tt.args.str, "")
 			if (err != nil) != tt.wantErr {
 				t.Errorf("FlattenJson() error = %v, wantErr %v", err, tt.wantErr)
 				return

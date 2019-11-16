@@ -84,7 +84,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	pairs, err := flason.FlattenJson(content, leader)
+	pairs, err := flason.FlattenJSON(content, leader)
 	if err != nil {
 		fmt.Printf("Error processing file: %s\n", err.Error())
 		os.Exit(1)
@@ -92,11 +92,11 @@ func main() {
 
 	switch output {
 	case "ini":
-		err = pairs.PrintAsIni(os.Stdout)
+		err = pairs.PrintAsINI(os.Stdout)
 	case "json":
-		err = pairs.PrintAsJson(os.Stdout)
+		err = pairs.PrintAsJSON(os.Stdout)
 	case "csv":
-		err = pairs.PrintAsCsv(os.Stdout)
+		err = pairs.PrintAsCSV(os.Stdout)
 	default:
 		err = fmt.Errorf("Unknown output provided: %s", output)
 	}

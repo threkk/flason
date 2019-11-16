@@ -12,26 +12,26 @@ import (
 	"strings"
 )
 
-type JsonPair struct {
+type JSONPair struct {
 	Path  string `json:"path"`
 	Value string `json:"value"`
 }
 
-type FlatJson []JsonPair
+type FlatJSON []JSONPair
 
-func (p FlatJson) Len() int {
+func (p FlatJSON) Len() int {
 	return len(p)
 }
 
-func (p FlatJson) Swap(i, j int) {
+func (p FlatJSON) Swap(i, j int) {
 	p[i], p[j] = p[j], p[i]
 }
 
-func (p FlatJson) Less(i, j int) bool {
+func (p FlatJSON) Less(i, j int) bool {
 	return p[i].Path < p[j].Path
 }
 
-func (p FlatJson) PrintAsJson(f *os.File) error {
+func (p FlatJSON) PrintAsJSON(f *os.File) error {
 	content, err := json.Marshal(p)
 	if err != nil {
 		return err
@@ -46,7 +46,7 @@ func (p FlatJson) PrintAsJson(f *os.File) error {
 	return w.Flush()
 }
 
-func (p FlatJson) PrintAsCsv(f *os.File) error {
+func (p FlatJSON) PrintAsCSV(f *os.File) error {
 	elements := [][]string{
 		{"path", "value"},
 	}
@@ -68,7 +68,7 @@ func (p FlatJson) PrintAsCsv(f *os.File) error {
 	return nil
 }
 
-func (p FlatJson) PrintAsIni(f *os.File) error {
+func (p FlatJSON) PrintAsINI(f *os.File) error {
 	w := bufio.NewWriter(f)
 
 	var line string
@@ -83,11 +83,11 @@ func (p FlatJson) PrintAsIni(f *os.File) error {
 	return w.Flush()
 }
 
-func FlattenJson(str, starter string) (pairs FlatJson, err error) {
+func FlattenJSON(str, starter string) (pairs FlatJSON, err error) {
 	// We recover in case we panic during execution.
 	defer func() {
 		if r := recover(); r != nil {
-			err = errors.New("Unknown value type during recursion.")
+			err = errors.New("unknown value type during recursion")
 			pairs = nil
 		}
 	}()
@@ -105,24 +105,24 @@ func FlattenJson(str, starter string) (pairs FlatJson, err error) {
 		// https://golang.org/pkg/encoding/json/#Unmarshal
 		switch curr.(type) {
 		case string:
-			pairs = append(pairs, JsonPair{
+			pairs = append(pairs, JSONPair{
 				Path:  prev,
 				Value: curr.(string),
 			})
 		case float64:
 			value := strconv.FormatFloat(curr.(float64), 'g', -1, 64)
-			pairs = append(pairs, JsonPair{
+			pairs = append(pairs, JSONPair{
 				Path:  prev,
 				Value: value,
 			})
 		case bool:
 			value := strconv.FormatBool(curr.(bool))
-			pairs = append(pairs, JsonPair{
+			pairs = append(pairs, JSONPair{
 				Path:  prev,
 				Value: value,
 			})
 		case nil:
-			pairs = append(pairs, JsonPair{
+			pairs = append(pairs, JSONPair{
 				Path:  prev,
 				Value: "null",
 			})
@@ -144,7 +144,7 @@ func FlattenJson(str, starter string) (pairs FlatJson, err error) {
 	}
 
 	reduce(starter, data)
-	sort.Sort(FlatJson(pairs))
+	sort.Sort(FlatJSON(pairs))
 
 	return pairs, nil
 }
