@@ -47,7 +47,7 @@ func TestBasicTypes(t *testing.T) {
 				str: `"a"`,
 			},
 			want: []JsonPair{
-				JsonPair{
+				{
 					Path:  "",
 					Value: "a",
 				},
@@ -60,7 +60,7 @@ func TestBasicTypes(t *testing.T) {
 				str: `{ "key": "value" }`,
 			},
 			want: []JsonPair{
-				JsonPair{
+				{
 					Path:  ".key",
 					Value: "value",
 				},
@@ -73,7 +73,7 @@ func TestBasicTypes(t *testing.T) {
 				str: `{ "key": 1.5 }`,
 			},
 			want: []JsonPair{
-				JsonPair{
+				{
 					Path:  ".key",
 					Value: "1.5",
 				},
@@ -86,7 +86,7 @@ func TestBasicTypes(t *testing.T) {
 				str: `{ "key": null }`,
 			},
 			want: []JsonPair{
-				JsonPair{
+				{
 					Path:  ".key",
 					Value: "null",
 				},
@@ -99,11 +99,11 @@ func TestBasicTypes(t *testing.T) {
 				str: `{ "key": true, "otherKey": false }`,
 			},
 			want: []JsonPair{
-				JsonPair{
+				{
 					Path:  ".key",
 					Value: "true",
 				},
-				JsonPair{
+				{
 					Path:  ".otherKey",
 					Value: "false",
 				},
@@ -116,15 +116,15 @@ func TestBasicTypes(t *testing.T) {
 				str: `[ "a", 1, true ]`,
 			},
 			want: []JsonPair{
-				JsonPair{
+				{
 					Path:  "[0]",
 					Value: "a",
 				},
-				JsonPair{
+				{
 					Path:  "[1]",
 					Value: "1",
 				},
-				JsonPair{
+				{
 					Path:  "[2]",
 					Value: "true",
 				},
@@ -137,11 +137,11 @@ func TestBasicTypes(t *testing.T) {
 				str: `{ "inv": { "true": true, "false": false } }`,
 			},
 			want: []JsonPair{
-				JsonPair{
+				{
 					Path:  ".inv.false",
 					Value: "false",
 				},
-				JsonPair{
+				{
 					Path:  ".inv.true",
 					Value: "true",
 				},

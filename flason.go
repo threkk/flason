@@ -48,7 +48,7 @@ func (p FlatJson) PrintAsJson(f *os.File) error {
 
 func (p FlatJson) PrintAsCsv(f *os.File) error {
 	elements := [][]string{
-		[]string{"path", "value"},
+		{"path", "value"},
 	}
 
 	for _, pair := range p {
