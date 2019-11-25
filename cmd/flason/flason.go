@@ -14,6 +14,7 @@ import (
 var version string = "0.0.0"
 var output string
 var leader string
+var uniq bool
 
 func getInput(input string) (*os.File, error) {
 	// Empty input makes read from STDIN.
@@ -41,8 +42,10 @@ func getInput(input string) (*os.File, error) {
 }
 
 func init() {
-	flag.StringVar(&output, "output", "ini", "format of the output [ini,json,csv]")
+	flag.StringVar(&output, "output", "ini", "format of the output [ini,json,csv,path]")
 	flag.StringVar(&leader, "leader", "", "starter element of each path")
+	flag.BoolVar(&uniq, "uniq", false, "if the output is path, return only unique values")
+
 	flag.Usage = func() {
 		fmt.Printf(`flason v%s - https://github.com/threkk/flason  
 
@@ -97,6 +100,8 @@ func main() {
 		err = pairs.PrintAsJSON(os.Stdout)
 	case "csv":
 		err = pairs.PrintAsCSV(os.Stdout)
+	case "path":
+		err = pairs.PrintOnlyPath(os.Stdout, uniq)
 	default:
 		err = fmt.Errorf("Unknown output provided: %s", output)
 	}
