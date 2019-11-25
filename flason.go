@@ -7,10 +7,26 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
 )
+
+func uniq(src []string) []string {
+	seen := make(map[string]bool)
+
+	for _, str := range src {
+		seen[str] = true
+	}
+
+	result := make([]string, len(seen))
+	for key := range seen {
+		result = append(result, key)
+	}
+
+	return result
+}
 
 type JSONPair struct {
 	Path  string `json:"path"`
@@ -77,6 +93,37 @@ func (p FlatJSON) PrintAsINI(f *os.File) error {
 		_, err := w.WriteString(line)
 		if err != nil {
 			return err
+		}
+	}
+
+	return w.Flush()
+}
+
+func (p FlatJSON) PrintOnlyPath(f *os.File, unique bool) error {
+	w := bufio.NewWriter(f)
+
+	paths := make([]string, len(p))
+	for i, pair := range p {
+		paths[i] = fmt.Sprintf("%s\n", pair.Path)
+		if !unique {
+			w.WriteString(paths[i])
+		}
+	}
+
+	if unique {
+		r, err := regexp.Compile(`\[\d+\]`)
+		if err != nil {
+			return err
+		}
+
+		for i, pair := range p {
+			paths[i] = fmt.Sprintf("%s\n", r.ReplaceAllString(pair.Path, "[]"))
+		}
+
+		paths = uniq(paths)
+		sort.Strings(paths)
+		for _, p := range paths {
+			w.WriteString(p)
 		}
 	}
 
